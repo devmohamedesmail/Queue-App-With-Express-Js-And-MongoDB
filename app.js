@@ -8,7 +8,7 @@ import services_routes from './routes/api/services/routes.js'
 import setting_routes from './routes/api/settings/routes.js'
 import pages_routes from './routes/api/pages/routes.js'
 import auth_routes from './routes/api/auth/routes.js'
-import subscriber_routes from './routes/api/subscriber/routes.js'
+// import subscriber_routes from './routes/api/subscriber/routes.js'
 import api from './routes/api/routes.js'
 import notification_routes from "./routes/api/notifications/routes.js";
 
@@ -85,7 +85,7 @@ app.use('/api/v1/settings', setting_routes);
 // pages api Routes file
 app.use('/api/v1/pages', pages_routes);
 // subscribe api Routes file
-app.use('/api/v1/subscriber', subscriber_routes)
+// app.use('/api/v1/subscriber', subscriber_routes)
 
 app.use('/api/v1', api);
 
