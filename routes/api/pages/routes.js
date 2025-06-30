@@ -1,5 +1,5 @@
 import express from 'express'
-import { fetch_pages , update_page , delete_page, add_new_page } from '../../controllers/api/Pages_api_controller.js';
+import { fetch_pages , update_page , delete_page, add_new_page } from '../../../controllers/api/pages_api_controller.js';
 const router = express.Router();
 
 

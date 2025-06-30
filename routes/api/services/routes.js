@@ -1,5 +1,5 @@
 import express from 'express';
-import { fetch_place_services , get_last_queue } from '../../controllers/api/service_api_controller.js';
+import { fetch_place_services , get_last_queue } from '../../../controllers/api/service_api_controller.js';
 
 const router = express.Router();
 

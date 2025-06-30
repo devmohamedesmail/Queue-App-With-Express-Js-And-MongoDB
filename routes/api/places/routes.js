@@ -1,5 +1,5 @@
 import express from 'express';
-import { fetch_places_with_services , add_new_place, update_place,show_place_qrcode, delete_place } from '../../controllers/api/places_api_controller.js';
+import { fetch_places_with_services , add_new_place, update_place,show_place_qrcode, delete_place } from '../../../controllers/api/places_api_controller.js';
 import multer from 'multer';
 
 const router = express.Router();

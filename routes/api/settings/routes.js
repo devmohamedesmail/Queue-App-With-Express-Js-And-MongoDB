@@ -1,5 +1,5 @@
 import express from 'express';
-import { fetch_setting, update_settings } from '../../controllers/api/SettingApiController.js';
+import { fetch_setting, update_settings } from '../../../controllers/api/settings_api_controller.js';
 import multer from 'multer';
 import path from 'path'
 import fs from 'fs';

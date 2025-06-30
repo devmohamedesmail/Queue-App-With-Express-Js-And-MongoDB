@@ -4,8 +4,8 @@ import { book_new_queue,cancel_queue, fetch_all_waiting_queues_in_service, get_a
     get_all_user_queues_history,
     subscriber_active_queue
 
- } from '../../controllers/api/queues_api_controller.js';
-import { socketMiddleware } from '../../middlewares/socketMiddleware.js';
+ } from '../../../controllers/api/queues_api_controller.js';
+import { socketMiddleware } from '../../../middlewares/socketMiddleware.js';
 const router = express.Router();
 
 

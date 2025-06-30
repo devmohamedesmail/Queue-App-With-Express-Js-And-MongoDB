@@ -2,15 +2,15 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { setupApp } from './config/appConfig.js';
-import places_routes from './routes/api/places_routes.js'
-import queues_routes from './routes/api/queue_routes.js'
-import services_routes from './routes/api/services_routes.js'
-import settingRoutes from './routes/api/settingRoutes.js'
-import pagesRoutes from './routes/api/pagesRoutes.js'
-import auth_routes from './routes/api/auth_routes.js'
-import subscriberRoutes from './routes/api/subscriberRoutes.js'
+import places_routes from './routes/api/places/routes.js'
+import queues_routes from './routes/api/queues/routes.js'
+import services_routes from './routes/api/services/routes.js'
+import setting_routes from './routes/api/settings/routes.js'
+import pages_routes from './routes/api/pages/routes.js'
+import auth_routes from './routes/api/auth/routes.js'
+import subscriber_routes from './routes/api/subscriber/routes.js'
 import api from './routes/api/routes.js'
-
+import notification_routes from "./routes/api/notifications/routes.js";
 
 
 
@@ -81,22 +81,15 @@ app.use('/api/v1/services', services_routes);
 // Queue Api Routes file
 app.use('/api/v1/queues', queues_routes);
 
-
-
-
-
-
-
-
-
+app.use('/api/v1/notifications', notification_routes);
 // settings Api Routes file
-app.use('/api/v1/settings', settingRoutes);
+app.use('/api/v1/settings', setting_routes);
 
 
 // pages api Routes file
-app.use('/api/v1/pages', pagesRoutes);
+app.use('/api/v1/pages', pages_routes);
 // subscribe api Routes file
-app.use('/api/v1/subscriber', subscriberRoutes)
+app.use('/api/v1/subscriber', subscriber_routes)
 
 app.use('/api/v1', api);
 
