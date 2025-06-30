@@ -1,0 +1,72 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+  <title>Socket.IO Test</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+  <h1>Socket.IO Chat</h1>
+  <input id="message" placeholder="Type a message..." />
+  <button onclick="sendMessage()">Send</button>
+  <ul id="messages"></ul>
+
+  <script>
+    const socket = io('http://localhost:3000');
+
+    socket.on('connect', () => {
+      console.log('Connected to server:', socket.id);
+    });
+
+    socket.on('message', (data) => {
+      const li = document.createElement('li');
+      li.textContent = data;
+      document.getElementById('messages').appendChild(li);
+    });
+
+    function sendMessage() {
+      const msg = document.getElementById('message').value;
+      socket.emit('message', msg);
+      document.getElementById('message').value = '';
+    }
+  </script>
+</body>
+</html> -->
+
+
+
+
+
+
+
+<!-- Save as test-queue-io.html and open in your browser -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Queue Status Change</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+  <h2>Queue Status Listener</h2>
+  <ul id="events"></ul>
+  <script>
+    // Replace these with actual values
+    const userId = '6862406802c81a05a9225f05';
+    const placeId = '682368453f7c48110eb88489';
+    const serviceId = '6847fb8e1e692bc68650ee61';
+
+    const socket = io('http://localhost:3000');
+
+    socket.on('connect', () => {
+      // Join user room
+      socket.emit('join_room', `user_${userId}`);
+      // Join place-service room
+      socket.emit('join_room', `place_${placeId}_service_${serviceId}`);
+      document.getElementById('events').innerHTML += `<li>Connected as ${socket.id}</li>`;
+    });
+
+    socket.on('queue_status_updated', (data) => {
+      document.getElementById('events').innerHTML += `<li>Status Update: ${JSON.stringify(data)}</li>`;
+    });
+  </script>
+</body>
+</html>
