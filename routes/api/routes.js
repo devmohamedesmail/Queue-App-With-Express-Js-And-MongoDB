@@ -1,5 +1,6 @@
 import express from 'express';
 import {show_help_messages, fetch_queues_for_employee, fetch_queues_for_place, send_help ,show_help_replies ,show_users ,edit_help} from '../../controllers/api/api_controller.js';
+import subscriberRoutes from './subscriber/routes.js';
 const router = express.Router();
 
 
@@ -19,6 +20,7 @@ router.get('/show/all/helps', show_help_messages);
 
 
 // *************************** users routes ******************************
+router.use('/subscriber', subscriberRoutes);
 router.get('/users', show_users); 
 
 
