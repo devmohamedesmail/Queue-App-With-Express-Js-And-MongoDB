@@ -29,7 +29,7 @@ const QueueSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ["waiting", "active", "cancelled"], // تحديد القيم المتاحة
+        enum: ["waiting", "active", "cancelled", "completed" , "rejected" , "pending"], // تحديد القيم المتاحة
         default: "waiting",
     },
     employee: {

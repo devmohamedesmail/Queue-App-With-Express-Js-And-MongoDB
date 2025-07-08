@@ -44,6 +44,16 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: false
     },
+    isActive: {
+        type: Boolean,
+        required: false,
+        default: true
+    },
+    isDeleted: {
+        type: Boolean,
+        required: false,
+        default: false
+    }
     
   
 
