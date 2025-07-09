@@ -11,9 +11,11 @@ import auth_routes from './routes/api/auth/routes.js'
 import subscriber_routes from './routes/api/subscriber/routes.js'
 import api from './routes/api/routes.js'
 import notification_routes from "./routes/api/notifications/routes.js";
+import connectDB from './config/db.js';
+import setupSocket from './config/socket.js';
 
 
-
+connectDB();
 
 
 const app = express();
@@ -29,28 +31,7 @@ const io = new Server(server, {
 await setupApp(app);
 
 // Socket.IO configuration
-io.on('connection', (socket) => {
-  console.log('A user connected:', socket.id);
-
- // Listen to a custom event
-  socket.on('message', (data) => {
-    console.log('Received message:', data);
-    // Send response back to all connected clients
-    io.emit('message', data);
-  });
-  
-
- socket.on('join_room', (roomId) => {
-    socket.join(roomId);
-    console.log(`Socket ${socket.id} joined room ${roomId}`);
-  });
-
-
-  // Handle disconnection
-  socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
-  });
-});
+setupSocket(io);
 
 // Make io accessible to routes
 app.set('io', io);

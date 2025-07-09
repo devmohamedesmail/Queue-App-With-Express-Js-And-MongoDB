@@ -6,7 +6,8 @@ import bcrypt from "bcryptjs";
 import { handleError } from "../../utilites/handleError.js";
 import { logEvent } from "../../utilites/logEvent.js";
 import Queue from "../../models/Queue.js";
-import { emitQueueUpdate, emitNewQueueEntry, emitQueueStatusChange } from "../../utilites/socketUtils.js";
+import { emitQueueUpdate,  emitQueueStatusChange } from "../../utilites/socketUtils.js";
+import { emit_queue_update, emit_queue_user_update } from "../../utilites/queues_socket.js";
 
 /**
  * Get all users by placeId
@@ -168,31 +169,33 @@ export const active_queue_by_employee = async (req, res) => {
         const employee = await User.findById(userId);
         queue.status = "active";
         queue.employee = employee;
+        queue.employee_id = employee._id;
         const queue_updated = await queue.save();
         // Emit real-time update for queue activation
+
+
         const io = req.app.get('io');
         if (io) {
             const roomId = `place_${queue.placeId}_service_${queue.serviceId}`;
-            emitQueueStatusChange(io, roomId, {
+            emit_queue_update(io, roomId,{
                 queueId: queue._id,
                 status: 'active',
                 employee: employee,
                 message: 'Queue is now being served'
-            });
-            emitQueueStatusChange(io, `user_${queue.userId}`, {
+            })
+            
+            emit_queue_user_update(io, `user_${queue.userId}`, {
                 queueId: queue._id,
                 status: 'active',
                 employee: employee,
                 message: 'Your turn! Please proceed to the service counter'
-            });
-            emitQueueUpdate(io, roomId, {
-                type: 'position_update',
-                message: 'Queue positions updated'
-            });
+            })
+            
         }
         await logEvent({ user: queue.userId, message: 'Queue activated for subscriber', level: 'info', meta: { queueId: queue._id } });
         res.json({
             status: 200,
+            message: 'Queue activated successfully',
             data: queue_updated,
         });
     } catch (error) {

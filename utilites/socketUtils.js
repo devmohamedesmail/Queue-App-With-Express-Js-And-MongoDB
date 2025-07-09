@@ -8,13 +8,13 @@ export const emitQueueUpdate = (io, roomId, queueData) => {
 };
 
 
-export const emitNewQueueEntry = (io, roomId, entryData) => {
-  io.to(roomId).emit('queue_entry_added', {
-    roomId,
-    data: entryData,
-    timestamp: new Date().toISOString()
-  });
-};
+// export const emitNewQueueEntry = (io, roomId, entryData) => {
+//   io.to(roomId).emit('queue_entry_added', {
+//     roomId,
+//     data: entryData,
+//     timestamp: new Date().toISOString()
+//   });
+// };
 
 
 export const emitQueueStatusChange = (io, roomId, statusData) => {
@@ -42,9 +42,9 @@ export const emitUserNotification = (io, userId, notification) => {
 };
 
 
-export const broadcastAnnouncement = (io, announcement) => {
-  io.emit('system_announcement', {
-    data: announcement,
-    timestamp: new Date().toISOString()
-  });
-};
+// export const broadcastAnnouncement = (io, announcement) => {
+//   io.emit('system_announcement', {
+//     data: announcement,
+//     timestamp: new Date().toISOString()
+//   });
+// };

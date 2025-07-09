@@ -22,10 +22,27 @@ const QueueSchema = new mongoose.Schema({
         required: false,
         default: null,
     },
+    user_id:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: false,
+        default: null
+    },
+    place_id:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Place',
+        required: false,
+        default: null
+    },
+    service_id:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Service',
+        required: false,
+        default: null
+    },
     queue: {
         type: Number,
         required: false,
-
     },
     status: {
         type: String,
@@ -34,6 +51,12 @@ const QueueSchema = new mongoose.Schema({
     },
     employee: {
         type:Object,
+        required: false,
+        default: null
+    },
+    employee_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Employee',
         required: false,
         default: null
     }

@@ -3,9 +3,10 @@ import Queue from "../../models/Queue.js";
 import Place from "../../models/Place.js";
 import Service from "../../models/Service.js";
 import User from "../../models/User.js";
-import { emitQueueUpdate, emitNewQueueEntry, emitQueueStatusChange } from "../../utilites/socketUtils.js";
+import { emitQueueUpdate, emitQueueStatusChange } from "../../utilites/socketUtils.js";
 import { handleError } from "../../utilites/handleError.js";
 import { logEvent } from "../../utilites/logEvent.js";
+import { emit_queue_new_entry } from "../../utilites/queues_socket.js";
 
 /**
  * Book a new queue for a user in a place/service
@@ -22,18 +23,23 @@ export const book_new_queue = async (req, res) => {
         const place = await Place.findById(placeId);
         const newQueue = new Queue();
         newQueue.userId = userId;
+        newQueue.user_id = userId;
         newQueue.placeId = placeId;
+        newQueue.place_id = placeId;
         newQueue.serviceId = serviceId;
+        newQueue.service_id = serviceId;
         newQueue.place = place;
         await newQueue.save();
         // Emit real-time update for new queue entry
         const io = req.app.get('io');
         if (io) {
             const roomId = `place_${placeId}_service_${serviceId}`;
-            emitNewQueueEntry(io, roomId, {
+            emit_queue_new_entry(io, roomId, {
                 queue: newQueue,
                 message: 'New user joined the queue'
-            });
+            })
+         
+
             emitQueueUpdate(io, `place_${placeId}`, {
                 type: 'new_entry',
                 serviceId,
