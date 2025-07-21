@@ -1,0 +1,12 @@
+# Exported from Render on 2025-07-21T15:20:26Z
+services:
+- type: web
+  name: queue app
+  runtime: node
+  repo: https://github.com/devmohamedesmail/Queue-App-With-Express-Js-And-MongoDB
+  plan: starter
+  region: oregon
+  buildCommand: npm install
+  startCommand: node app.js
+  autoDeployTrigger: commit
+version: "1"
