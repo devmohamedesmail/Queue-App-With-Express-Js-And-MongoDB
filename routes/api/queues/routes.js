@@ -24,16 +24,18 @@ const router = express.Router();
 // book a new queue for the user
 
 router.post('/book/new/queue/:userId/:placeId/:serviceId?', socketMiddleware, book_new_queue);
+// cancel queue
+router.get('/cancel/queue/:queueId', socketMiddleware, cancel_queue);
+// move my queue to back 
+router.get('/move/queue/:queueId', socketMiddleware, move_queue_to_back);
+
 // get all queue in the service and place
 router.get('/all/queue/:placeId/:serviceId?', fetch_all_waiting_queues_in_service);
 // get first active queue in the service
 router.get('/first/active/queue/:placeId/:serviceId?', get_first_active_queue_in_service);
 // get all user queues according day
 router.get('/user/queues/:userId', get_all_users_queues_today);
-// cancel queue
-router.get('/cancel/queue/:queueId', socketMiddleware, cancel_queue);
-// move my queue to back 
-router.get('/move/queue/:queueId', socketMiddleware, move_queue_to_back);
+
 // get all queues of the user for history
 router.get('/user/queues/history/:userId', get_all_user_queues_history);
 // change the queue to active

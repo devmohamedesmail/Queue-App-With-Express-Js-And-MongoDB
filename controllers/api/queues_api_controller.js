@@ -38,7 +38,6 @@ export const book_new_queue = async (req, res) => {
                 queue: newQueue,
                 message: 'New user joined the queue'
             })
-         
 
             emitQueueUpdate(io, `place_${placeId}`, {
                 type: 'new_entry',
@@ -46,39 +45,105 @@ export const book_new_queue = async (req, res) => {
                 queue: newQueue
             });
         }
-        await logEvent({ user: userId, message: 'Booked new queue', level: 'info', meta: { placeId, serviceId } });
         res.status(201).json(newQueue);
     } catch (error) {
-        await logEvent({ message: 'Error booking new queue', level: 'error', meta: { error: error.message } });
+        
         handleError(res, error, 400, 'Failed to book new queue');
     }
 };
 
+
+
 /**
- * Fetch all waiting queues in a service/place for today
+ * Cancel a queue
+ * - Updates queue status to cancelled
+ * - Emits real-time updates
  */
-// export const fetch_all_waiting_queues_in_service = async (req, res) => {
-//     try {
-//         await connectDB();
-//         const place = req.params.placeId;
-//         const service = req.params.serviceId;
-//         const todayStart = new Date();
-//         todayStart.setHours(0, 0, 0, 0);
-//         const todayEnd = new Date();
-//         todayEnd.setHours(23, 59, 59, 999);
-//         const queue = await Queue.find({
-//             placeId: place,
-//             serviceId: service,
-//             status: 'waiting',
-//             createdAt: { $gte: todayStart, $lte: todayEnd }
-//         }).sort({ createdAt: -1 });
-//         await logEvent({ message: 'Fetched all waiting queues', level: 'info', meta: { place, service } });
-//         res.status(200).json(queue);
-//     } catch (error) {
-//         await logEvent({ message: 'Error fetching waiting queues', level: 'error', meta: { error: error.message } });
-//         handleError(res, error, 400, 'Failed to fetch waiting queues');
-//     }
-// };
+export const cancel_queue = async (req, res) => {
+    try {
+        await connectDB();
+        const queueId = req.params.queueId;
+        const queue = await Queue.findById(queueId);
+        queue.status = 'cancelled';
+        await queue.save();
+        // Emit real-time update for queue cancellation
+        const io = req.app.get('io');
+        if (io) {
+            const roomId = `place_${queue.placeId}_service_${queue.serviceId}`;
+            emitQueueStatusChange(io, roomId, {
+                queueId: queue._id,
+                status: 'cancelled',
+                message: 'Queue has been cancelled'
+            });
+
+            emitQueueStatusChange(io, `user_${queue.userId}`, {
+                queueId: queue._id,
+                status: 'cancelled',
+                message: 'Your queue has been cancelled'
+            });
+
+        }
+        
+        res.status(200).json(queue);
+    } catch (error) {
+        handleError(res, error, 400, 'Failed to cancel queue');
+    }
+};
+
+
+
+/**
+ * Move a queue to the back
+ * - Cancels old queue, creates new one
+ * - Emits real-time updates
+ */
+export const move_queue_to_back = async (req, res) => {
+    try {
+        await connectDB();
+        const { queueId } = req.params;
+        const old_queue = await Queue.findById(queueId);
+        if (!old_queue) {
+            await logEvent({ message: 'Move to back failed: queue not found', level: 'warn', meta: { queueId } });
+            return res.status(404).json({ message: " Queue Not Found " });
+        }
+        old_queue.status = "cancelled";
+        await old_queue.save();
+        const new_queue = new Queue();
+        new_queue.userId = old_queue.userId;
+        new_queue.placeId = old_queue.placeId;
+        if (old_queue.serviceId) {
+            new_queue.serviceId = old_queue.serviceId;
+        }
+        new_queue.place = old_queue.place;
+        await new_queue.save();
+        // Emit real-time updates for queue movement
+        const io = req.app.get('io');
+        if (io) {
+            const roomId = `place_${old_queue.placeId}_service_${old_queue.serviceId}`;
+            emitQueueStatusChange(io, roomId, {
+                queueId: old_queue._id,
+                status: 'cancelled',
+                message: 'Queue moved to back'
+            });
+            emitQueueStatusChange(io, `user_${old_queue.userId}`, {
+                oldQueueId: old_queue._id,
+                newQueueId: new_queue._id,
+                status: 'moved_to_back',
+                message: 'Your queue has been moved to the back'
+            });
+        }
+       
+        res.json({
+            status: 200,
+            message: "Queue Moved Successfully",
+            queue: new_queue
+        });
+    } catch (error) {
+        await logEvent({ message: 'Error moving queue to back', level: 'error', meta: { error: error.message } });
+        handleError(res, error, 400, 'Failed to move queue to back');
+    }
+};
+
 
 
 
@@ -138,12 +203,6 @@ export const fetch_all_waiting_queues_in_service = async (req, res) => {
         const estimatedTimeStr = `${Math.floor(estimatedTime / 60)}h ${estimatedTime % 60}m`;
         // Get the last waiting queue (if any)
         const lastWaitingQueue = waitingQueues.length > 0 ? waitingQueues[0].queue : null;
-
-        await logEvent({
-            message: 'Fetched all waiting queues with estimated time',
-            level: 'info',
-            meta: { placeId, serviceId, estimatedTime }
-        });
 
         res.json({
             message: 'Fetched all waiting queues with estimated time',
@@ -274,101 +333,6 @@ export const get_all_users_queues_today = async (req, res) => {
 };
 
 
-
-/**
- * Cancel a queue
- * - Updates queue status to cancelled
- * - Emits real-time updates
- */
-export const cancel_queue = async (req, res) => {
-    try {
-        await connectDB();
-        const queueId = req.params.queueId;
-        const queue = await Queue.findById(queueId);
-        queue.status = 'cancelled';
-        await queue.save();
-        // Emit real-time update for queue cancellation
-        const io = req.app.get('io');
-        if (io) {
-            const roomId = `place_${queue.placeId}_service_${queue.serviceId}`;
-            emitQueueStatusChange(io, roomId, {
-                queueId: queue._id,
-                status: 'cancelled',
-                message: 'Queue has been cancelled'
-            });
-
-            emitQueueStatusChange(io, `user_${queue.userId}`, {
-                queueId: queue._id,
-                status: 'cancelled',
-                message: 'Your queue has been cancelled'
-            });
-
-        }
-        await logEvent({ user: queue.userId, message: 'Queue cancelled', level: 'info', meta: { queueId: queue._id } });
-        res.status(200).json(queue);
-    } catch (error) {
-        await logEvent({ message: 'Error cancelling queue', level: 'error', meta: { error: error.message } });
-        handleError(res, error, 400, 'Failed to cancel queue');
-    }
-};
-
-
-
-/**
- * Move a queue to the back
- * - Cancels old queue, creates new one
- * - Emits real-time updates
- */
-export const move_queue_to_back = async (req, res) => {
-    try {
-        await connectDB();
-        const { queueId } = req.params;
-        const old_queue = await Queue.findById(queueId);
-        if (!old_queue) {
-            await logEvent({ message: 'Move to back failed: queue not found', level: 'warn', meta: { queueId } });
-            return res.status(404).json({ message: " Queue Not Found " });
-        }
-        old_queue.status = "cancelled";
-        await old_queue.save();
-        const new_queue = new Queue();
-        new_queue.userId = old_queue.userId;
-        new_queue.placeId = old_queue.placeId;
-        if (old_queue.serviceId) {
-            new_queue.serviceId = old_queue.serviceId;
-        }
-        new_queue.place = old_queue.place;
-        await new_queue.save();
-        // Emit real-time updates for queue movement
-        const io = req.app.get('io');
-        if (io) {
-            const roomId = `place_${old_queue.placeId}_service_${old_queue.serviceId}`;
-            emitQueueStatusChange(io, roomId, {
-                queueId: old_queue._id,
-                status: 'cancelled',
-                message: 'Queue moved to back'
-            });
-            emitNewQueueEntry(io, roomId, {
-                queue: new_queue,
-                message: 'Queue moved to back of line'
-            });
-            emitQueueStatusChange(io, `user_${old_queue.userId}`, {
-                oldQueueId: old_queue._id,
-                newQueueId: new_queue._id,
-                status: 'moved_to_back',
-                message: 'Your queue has been moved to the back'
-            });
-        }
-        await logEvent({ user: old_queue.userId, message: 'Queue moved to back', level: 'info', meta: { oldQueueId: old_queue._id, newQueueId: new_queue._id } });
-        res.json({
-            status: 200,
-            message: "Queue Moved Successfully",
-            queue: new_queue
-        });
-    } catch (error) {
-        await logEvent({ message: 'Error moving queue to back', level: 'error', meta: { error: error.message } });
-        handleError(res, error, 400, 'Failed to move queue to back');
-    }
-};
 
 
 /**

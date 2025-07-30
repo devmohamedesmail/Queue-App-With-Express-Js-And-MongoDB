@@ -1,7 +1,4 @@
 import mongoose from 'mongoose';
-
-
-
 const connectDB = async () => {
     try {
         mongoose.set('strictQuery', false);
@@ -13,6 +10,4 @@ const connectDB = async () => {
         console.log("Error Connect to Database");
     }
 }
-
-
 export default connectDB

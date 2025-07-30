@@ -4,7 +4,7 @@ import path from 'path';
 import cookieParser from "cookie-parser";
 import expressLayouts from 'express-ejs-layouts';
 import session from 'express-session';
-import i18n from 'i18n';
+
 import cors from 'cors';
 import { v2 as cloudinary } from 'cloudinary';
 
@@ -39,21 +39,6 @@ export async function setupApp(app) {
   app.set('view engine', 'ejs');
 
 
-  // i18n configuration
-  // i18n.configure({
-  //   locales: ['en', 'ar'], // Add your languages here
-  //   directory: path.join(__dirname, 'locales'), // Translation files
-  //   defaultLocale: 'en',
-  //   cookie: 'lang', // Optional: to use cookies for language
-  //   queryParameter: 'lang', // Optional: for ?lang=ar
-  //   autoReload: true,
-  //   syncFiles: true
-  // });
-
-  // Middleware
-  // app.use(i18n.init);
-
-
 
   // session middleware
   app.use(session({
@@ -65,10 +50,6 @@ export async function setupApp(app) {
       maxAge: 1000 * 60 * 60 * 24 * 7
     }
   }));
-
-
-  
-
 
 
 

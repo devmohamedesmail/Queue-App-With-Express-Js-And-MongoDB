@@ -46,7 +46,7 @@ const QueueSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ["waiting", "active", "cancelled", "completed" , "rejected" , "pending"], // تحديد القيم المتاحة
+        enum: ["waiting", "active", "cancelled", "completed" , "rejected" , "pending"], 
         default: "waiting",
     },
     employee: {
@@ -61,26 +61,6 @@ const QueueSchema = new mongoose.Schema({
         default: null
     }
 }, { timestamps: true });
-
-
-// Middleware to automatically set the queue number
-// QueueSchema.pre("save", async function (next) {
-//     if (!this.queue) {
-//         let query = { placeId: this.placeId };
-//         // If serviceId is not null, we add it to the query
-//         if (this.serviceId) {
-//             query.serviceId = this.serviceId;
-//         }
-
-//         const lastQueue = await this.constructor
-//             .findOne(query)
-//             .sort({ queue: -1 });
-
-//         // Set the queue number to the next one
-//         this.queue = lastQueue ? lastQueue.queue + 1 : 1;
-//     }
-//     next();
-// });
 
 
 QueueSchema.pre("save", async function (next) {

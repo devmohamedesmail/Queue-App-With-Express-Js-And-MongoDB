@@ -37,12 +37,6 @@ setupSocket(io);
 app.set('io', io);
 
 
-
-
-
-
-
-
 app.get('/', (req, res) => {
   res.render('index');
 });
@@ -72,11 +66,6 @@ app.use('/api/v1', api);
 
 // ********************************************************* Api Routes End *********************************************************
 
-
-
-
-
 server.listen(3000, () => {
   console.log(`Server running on http://localhost:3000`);
-  console.log('Socket.IO server is ready');
 });
