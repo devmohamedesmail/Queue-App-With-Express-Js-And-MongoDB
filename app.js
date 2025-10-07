@@ -19,6 +19,8 @@ connectDB();
 
 
 const app = express();
+
+// Socket.IO server setup
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
@@ -51,12 +53,10 @@ app.use('/api/v1/places', places_routes);
 app.use('/api/v1/services', services_routes);
 // Queue Api Routes file
 app.use('/api/v1/queues', queues_routes);
-
+// notifications Api Routes file
 app.use('/api/v1/notifications', notification_routes);
 // settings Api Routes file
 app.use('/api/v1/settings', setting_routes);
-
-
 // pages api Routes file
 app.use('/api/v1/pages', pages_routes);
 // subscribe api Routes file
