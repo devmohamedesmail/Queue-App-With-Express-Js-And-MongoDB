@@ -4,7 +4,7 @@
   "main": "app.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll",
     "dev": "nodemon app.js",
     "start": "node app.js",
     "tailwind": "npx tailwindcss -i ./public/assets/style/input.css -o ./public/assets/style/output.css --watch"
@@ -36,7 +36,9 @@
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
-    "daisyui": "^5.0.12",
-    "tailwindcss": "^4.0.14"
+    "cross-env": "^10.1.0",
+    "jest": "^30.2.0",
+    "jsdoc": "^4.0.5",
+    "supertest": "^7.1.4"
   }
 }

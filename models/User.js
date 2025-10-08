@@ -6,7 +6,9 @@ const UserSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        required: true
+        required: true,
+        unique: true,
+        
     },
     password: {
         type: String,
@@ -23,7 +25,8 @@ const UserSchema = new mongoose.Schema({
     role: {
         type: String,
         required: false,
-        default: 'user'
+        default: 'user',
+        enum: ['user', 'admin', 'manager', 'staff' , 'subscriber']
     },
     placeId: {
         type: String,
@@ -40,9 +43,10 @@ const UserSchema = new mongoose.Schema({
         required: false,
         default: {}
     },
-    image: {
+    avatar: {
         type: String,
-        required: false
+        required: false ,
+        default: ''
     },
     isActive: {
         type: Boolean,

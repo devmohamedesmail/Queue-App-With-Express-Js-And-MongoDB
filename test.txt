@@ -1,0 +1,97 @@
+import { register_user } from '../controllers/authController.js';
+import { User } from '../models/User.js';
+import { Role } from '../models/Role.js';
+import { connectDB } from '../utils/db.js';
+import { generateToken } from '../utils/generateToken.js';
+import bcrypt from 'bcryptjs';
+
+// mock dependencies
+jest.mock('../models/User.js');
+jest.mock('../models/Role.js');
+jest.mock('../utils/db.js');
+jest.mock('../utils/generateToken.js');
+jest.mock('bcryptjs');
+
+describe('register_user', () => {
+  let req, res;
+
+  beforeEach(() => {
+    req = {
+      body: { email: 'test@example.com', password: 'password123', name: 'John' },
+    };
+
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+
+    jest.clearAllMocks();
+  });
+
+  it('should return 400 if email or password missing', async () => {
+    req.body = { email: '' };
+    await register_user(req, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      status: 400,
+      message: 'Email and password are required',
+    });
+  });
+
+  it('should return 400 if email already exists', async () => {
+    User.findOne.mockResolvedValue({ _id: '123', email: 'test@example.com' });
+
+    await register_user(req, res);
+
+    expect(User.findOne).toHaveBeenCalledWith({ email: 'test@example.com' });
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      status: 400,
+      message: 'Email already exists',
+    });
+  });
+
+  it('should create new user and return success', async () => {
+    User.findOne.mockResolvedValue(null);
+    bcrypt.genSalt.mockResolvedValue('salt');
+    bcrypt.hash.mockResolvedValue('hashed');
+    generateToken.mockReturnValue('fake-token');
+
+    const mockUser = {
+      _id: 'u123',
+      email: 'test@example.com',
+      password: 'hashed',
+      name: 'John',
+      save: jest.fn(),
+      toObject: jest.fn().mockReturnValue({
+        _id: 'u123',
+        email: 'test@example.com',
+        name: 'John',
+      }),
+    };
+    User.mockImplementation(() => mockUser);
+
+    const mockRole = { save: jest.fn() };
+    Role.mockImplementation(() => mockRole);
+
+    await register_user(req, res);
+
+    expect(connectDB).toHaveBeenCalled();
+    expect(User.findOne).toHaveBeenCalledWith({ email: 'test@example.com' });
+    expect(bcrypt.hash).toHaveBeenCalledWith('password123', 'salt');
+    expect(generateToken).toHaveBeenCalledWith('u123');
+    expect(mockUser.save).toHaveBeenCalled();
+    expect(mockRole.save).toHaveBeenCalled();
+
+    expect(res.json).toHaveBeenCalledWith({
+      status: 201,
+      message: 'success',
+      user: {
+        _id: 'u123',
+        email: 'test@example.com',
+        name: 'John',
+        token: 'fake-token',
+      },
+    });
+  });
+});
