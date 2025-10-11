@@ -8,6 +8,9 @@ import { logEvent } from "../../utilites/logEvent.js";
 
 /**
  * Fetch all places with their services
+ * @param {object} req - Express request object
+ * @param {object} res - Express response object
+ * @returns {object} JSON response with status, message, and data (list of places with services)
  * - Uses MongoDB aggregation to join places and services
  * - Returns a list of places with their services
  */
@@ -38,6 +41,9 @@ export const fetch_places_with_services = async (req, res) => {
 
 /**
  * Add a new place
+ * @param {object} req - Express request object, expects place details and optional image/services in body
+ * @param {object} res - Express response object
+ * @returns {object} JSON response with status, message, and new place object
  * - Handles image upload (Cloudinary)
  * - Parses and saves services
  * - Saves place to DB
@@ -112,6 +118,9 @@ export const add_new_place = async (req, res) => {
 
 /**
  * Update an existing place
+ * @param {object} req - Express request object, expects placeId in params and updated fields in body
+ * @param {object} res - Express response object
+ * @returns {object} JSON response with status, message, and updated place object
  * - Updates place fields and image
  * - Updates daysOfWork and services
  */
@@ -198,6 +207,9 @@ export const update_place = async (req, res) => {
 
 /**
  * Delete a place and its services
+ * @param {object} req - Express request object, expects placeId in params
+ * @param {object} res - Express response object
+ * @returns {object} JSON response with status and message
  * - Deletes place by ID
  * - Deletes all related services
  */
@@ -220,6 +232,9 @@ export const delete_place = async (req, res) => {
 
 /**
  * Show QR code for a place
+ * @param {object} req - Express request object, expects placeId in params
+ * @param {object} res - Express response object
+ * @returns {object} JSON response with status, place object, and QR code data URL
  * - Generates a QR code for the place's service URL
  */
 export const show_place_qrcode = async (req, res) => {
