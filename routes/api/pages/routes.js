@@ -4,7 +4,7 @@ import {
     update_page , 
     delete_page, 
     add_new_page 
-} from '../../../controllers/api/pages_api_controller.js';
+} from '../../../controllers/api/pages_controller.js';
 const router = express.Router();
 
 
