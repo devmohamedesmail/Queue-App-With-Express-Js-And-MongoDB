@@ -3,6 +3,10 @@ import Page from "../../models/Page.js"
 
 
 
+
+
+
+
 /**
  * @function add_new_page
  * @desc    Create a new page with English and Arabic titles and content.
