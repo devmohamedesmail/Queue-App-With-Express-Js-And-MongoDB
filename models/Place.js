@@ -70,7 +70,13 @@ const PlaceSchema = new mongoose.Schema({
         type: String,
         required: false,
         default: ''
+    },
+    employees: [
+    {
+      user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      role: { type: String, enum: ['admin', 'manager', 'staff'], default: 'staff' }
     }
+  ]
 
 
 

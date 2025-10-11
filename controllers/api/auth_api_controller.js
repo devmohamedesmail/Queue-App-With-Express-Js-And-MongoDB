@@ -40,17 +40,20 @@ export const register_user = async (req, res) => {
     await role.save();
 
     const token = generateToken(newUser._id);
+    // Delete the password
+    const userData = newUser.toObject();
+    delete userData.password;
+
+    userData.token = token;
+
     res.json({
       status: 201,
       message: "success",
-      user: {
-        ...newUser.toObject(),
-        token,
-      },
+      user: userData,
     });
   } catch (error) {
     handleError(res, error);
-    
+
   }
 };
 
@@ -71,7 +74,7 @@ export const login_user = async (req, res) => {
       return;
     }
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select("+password");
     if (!user || !user.password) {
       res.json({ status: 401, message: "Invalid email or passwordd" });
       return;
@@ -84,13 +87,14 @@ export const login_user = async (req, res) => {
     }
 
     const token = generateToken(user._id);
+    // Remove the password 
+    const userData = user.toObject();
+    delete userData.password;
+    userData.token = token;
     res.json({
       status: 200,
       message: "success",
-      user: {
-        ...user.toObject(),
-        token,
-      },
+      user: userData,
     });
   } catch (error) {
     await logEvent({ message: 'Login error', level: 'error', meta: { error: error.message } });
@@ -113,28 +117,45 @@ export const edit_user = async (req, res) => {
 
     const user = await User.findById(userId);
     if (!user) {
-      res.status(404).json({ status: 404, message: "User not found" });
-      return;
+      return res.status(404).json({ status: 404, message: "User not found" });
     }
 
-    if (name) user.name = name;
-    if (phone) user.phone = phone;
-    if (address) user.address = address;
-    if (email) user.email = email;
+    if (name !== undefined) user.name = name;
+    if (phone !== undefined) user.phone = phone;
+    if (address !== undefined) user.address = address;
+    if (email !== undefined) user.email = email;
     if (password) {
       const salt = await bcrypt.genSalt(10);
       user.password = await bcrypt.hash(password, salt);
     }
 
+    // Handle avatar upload
+    if (req.file) {
+      const uploadResult = await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { folder: 'avatars' },
+          (error, result) => {
+            if (error) return reject(error);
+            resolve(result);
+          }
+        );
+        stream.end(req.file.buffer);
+      });
+      user.avatar = uploadResult.secure_url;
+    }
+
     await user.save();
     res.json({
       status: 200,
-      message: "success",
+      message: "User updated successfully",
       user: user.toObject(),
     });
   } catch (error) {
-    await logEvent({ message: 'Edit user error', level: 'error', meta: { error: error.message } });
-    handleError(res, error);
+    res.json({
+      status: 404,
+      message: 'Error updating user',
+      error: error.message,
+    });
   }
 };
 
@@ -162,7 +183,11 @@ export const delete_user = async (req, res) => {
       message: "success",
     });
   } catch (error) {
-    handleError(res, error, 400);
+    res.json({
+      status: 404,
+      message: 'Error Delete user',
+      error: error.message,
+    });
   }
 };
 

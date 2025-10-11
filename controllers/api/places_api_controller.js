@@ -6,6 +6,18 @@ import { v2 as cloudinary } from 'cloudinary';
 import { handleError } from "../../utilites/handleError.js";
 import { logEvent } from "../../utilites/logEvent.js";
 
+
+
+
+
+
+
+
+
+
+
+
+
 /**
  * Fetch all places with their services
  * @param {object} req - Express request object
@@ -38,6 +50,8 @@ export const fetch_places_with_services = async (req, res) => {
         handleError(res, error, 404, 'Failed to fetch places');
     }
 };
+
+
 
 /**
  * Add a new place
@@ -115,6 +129,11 @@ export const add_new_place = async (req, res) => {
         handleError(res, error, 500, 'Internal server error');
     }
 };
+
+
+
+
+
 
 /**
  * Update an existing place
@@ -205,6 +224,10 @@ export const update_place = async (req, res) => {
     }
 };
 
+
+
+
+
 /**
  * Delete a place and its services
  * @param {object} req - Express request object, expects placeId in params
@@ -229,6 +252,10 @@ export const delete_place = async (req, res) => {
         handleError(res, error, 400, 'Failed to delete place');
     }
 };
+
+
+
+
 
 /**
  * Show QR code for a place
