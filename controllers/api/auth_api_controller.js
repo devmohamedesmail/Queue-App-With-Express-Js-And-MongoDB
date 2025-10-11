@@ -1,8 +1,6 @@
 import connectDB from "../../config/db.js";
-import Role from "../../models/Role.js";
 import User from "../../models/User.js";
 import bcrypt from "bcryptjs";
-import { handleError } from "../../utilites/handleError.js";
 import { generateToken } from "../../utilites/generateToken.js";
 import { logEvent } from "../../utilites/logEvent.js";
 
@@ -18,26 +16,25 @@ export const register_user = async (req, res) => {
   try {
     await connectDB();
     const { email, password, name } = req.body;
-
     if (!email || !password) {
       res.status(400).json({ status: 400, message: "Email and password are required" });
       return;
     }
 
+    // check if the user exist
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       res.status(400).json({ status: 400, message: "Email already exists" });
       return;
     }
 
+    // hash the password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const newUser = new User({ email, password: hashedPassword, name });
     await newUser.save();
 
-    const role = new Role({ user_id: newUser._id, role: "user" });
-    await role.save();
 
     const token = generateToken(newUser._id);
     // Delete the password
@@ -52,7 +49,12 @@ export const register_user = async (req, res) => {
       user: userData,
     });
   } catch (error) {
-    handleError(res, error);
+
+    res.json({
+      status: 404,
+      message: "Error Register User",
+      error: error.message
+    })
 
   }
 };
@@ -97,8 +99,11 @@ export const login_user = async (req, res) => {
       user: userData,
     });
   } catch (error) {
-    await logEvent({ message: 'Login error', level: 'error', meta: { error: error.message } });
-    handleError(res, error);
+    res.json({
+      status: 404,
+      message: "Error Login User",
+      error: error.message
+    })
   }
 };
 

@@ -2,25 +2,25 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { setupApp } from './config/appConfig.js';
-import places_routes from './routes/api/places/routes.js'
-import queues_routes from './routes/api/queues/routes.js'
-import services_routes from './routes/api/services/routes.js'
-import setting_routes from './routes/api/settings/routes.js'
-import pages_routes from './routes/api/pages/routes.js'
-import auth_routes from './routes/api/auth/routes.js'
-import subscriber_routes from './routes/api/subscriber/routes.js'
-import api from './routes/api/routes.js'
+import places_routes from './routes/api/places/routes.js';
+import queues_routes from './routes/api/queues/routes.js';
+import services_routes from './routes/api/services/routes.js';
+import setting_routes from './routes/api/settings/routes.js';
+import pages_routes from './routes/api/pages/routes.js';
+import auth_routes from './routes/api/auth/routes.js';
+import subscriber_routes from './routes/api/subscriber/routes.js';
+import help_routes from './routes/api/help/routes.js';
+import users_routes from './routes/api/users/routes.js';
 import notification_routes from "./routes/api/notifications/routes.js";
 import connectDB from './config/db.js';
 import setupSocket from './config/socket.js';
 
-
+// Connect to MongoDB
 connectDB();
-
 
 const app = express();
 
-// Socket.IO server setup
+// Create HTTP server and setup Socket.IO
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
@@ -29,42 +29,57 @@ const io = new Server(server, {
   }
 });
 
-
+// Setup Express middlewares and configuration
 await setupApp(app);
 
-// Socket.IO configuration
+// Configure Socket.IO events and handlers
 setupSocket(io);
 
-// Make io accessible to routes
+// Make io instance accessible throughout the app
 app.set('io', io);
 
-
+// Root route for rendering index page
 app.get('/', (req, res) => {
   res.render('index');
 });
 
+// *********************************************************
+// API Routes Registration
+// *********************************************************
 
-// ********************************************************* Api Routes Start *********************************************************
-// Auth Api Routes file
+// Auth API routes
 app.use('/api/v1/auth', auth_routes);
-// Places Api Routes file
+
+// Places API routes
 app.use('/api/v1/places', places_routes);
-// Services Api Routes file
+
+// Services API routes
 app.use('/api/v1/services', services_routes);
-// Queue Api Routes file
+
+// Queue API routes
 app.use('/api/v1/queues', queues_routes);
-// notifications Api Routes file
+
+// Notifications API routes
 app.use('/api/v1/notifications', notification_routes);
-// settings Api Routes file
+
+// Settings API routes
 app.use('/api/v1/settings', setting_routes);
-// pages api Routes file
+
+// Pages API routes
 app.use('/api/v1/pages', pages_routes);
-// subscribe api Routes file
-app.use('/api/v1/subscriber', subscriber_routes)
 
-app.use('/api/v1', api);
+// Subscriber API routes
+app.use('/api/v1/subscriber', subscriber_routes);
 
-// ********************************************************* Api Routes End *********************************************************
+// Help API routes
+app.use('/api/v1/help', help_routes);
+
+// Users API routes
+app.use('/api/v1/users', users_routes);
+
+// *********************************************************
+// Start Server
+// *********************************************************
 
 server.listen(3000, () => {
   console.log(`Server running on http://localhost:3000`);

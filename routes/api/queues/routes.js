@@ -1,5 +1,10 @@
 import express from 'express';
-import { book_new_queue,cancel_queue, fetch_all_waiting_queues_in_service, get_all_users_queues_today, get_first_active_queue_in_service,  
+import { 
+    book_new_queue,
+    cancel_queue, 
+    fetch_all_waiting_queues_in_service, 
+    get_all_users_queues_today, 
+    get_first_active_queue_in_service,  
     move_queue_to_back,
     get_all_user_queues_history,
     subscriber_active_queue
@@ -21,24 +26,69 @@ const router = express.Router();
  * - Get all user queues history
  */
 
-// book a new queue for the user
 
+
+
+/**
+ * @route   POST /api/queues/book/new/queue/:userId/:placeId/:serviceId?
+ * @desc    Book a new queue for a user at a place and service (serviceId optional)
+ * @access  Public
+ */
 router.post('/book/new/queue/:userId/:placeId/:serviceId?', socketMiddleware, book_new_queue);
-// cancel queue
+
+/**
+ * @route   GET /api/queues/cancel/queue/:queueId
+ * @desc    Cancel a queue by its ID
+ * @access  Public
+ */
 router.get('/cancel/queue/:queueId', socketMiddleware, cancel_queue);
-// move my queue to back 
+
+/**
+ * @route   GET /api/queues/move/queue/:queueId
+ * @desc    Move a user's queue to the back of the line
+ * @access  Public
+ */
 router.get('/move/queue/:queueId', socketMiddleware, move_queue_to_back);
 
-// get all queue in the service and place
+
+/**
+ * @route   GET /api/queues/all/queue/:placeId/:serviceId?
+ * @desc    Fetch all waiting queues for a specific place and service (serviceId optional)
+ * @access  Public
+ */
 router.get('/all/queue/:placeId/:serviceId?', fetch_all_waiting_queues_in_service);
-// get first active queue in the service
+
+
+
+/**
+ * @route   GET /api/queues/first/active/queue/:placeId/:serviceId?
+ * @desc    Get the first active queue in a specific place and service (serviceId optional)
+ * @access  Public
+ */
 router.get('/first/active/queue/:placeId/:serviceId?', get_first_active_queue_in_service);
-// get all user queues according day
+
+
+/**
+ * @route   GET /api/queues/user/queues/:userId
+ * @desc    Get all queues for a user for today
+ * @access  Public
+ */
 router.get('/user/queues/:userId', get_all_users_queues_today);
 
-// get all queues of the user for history
+/**
+ * @route   GET /api/queues/user/queues/history/:userId
+ * @desc    Get all historical queues for a user
+ * @access  Public
+ */
 router.get('/user/queues/history/:userId', get_all_user_queues_history);
-// change the queue to active
+
+
+
+/**
+ * @route   GET /api/queues/active/queue/:queueId/:userId
+ * @desc    Change the queue status to active for a user
+ * @access  Public
+ */
 router.get('/active/queue/:queueId/:userId', socketMiddleware, subscriber_active_queue );
 
 

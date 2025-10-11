@@ -1,12 +1,22 @@
 import Notification from "../../models/Notification.js";
 import User from "../../models/User.js";
-import { logEvent } from "../../utilites/logEvent.js";
-import { handleError } from "../../utilites/handleError.js";
-// import { emitUserNotification} from "../../utilites/socketUtils.js";
-import { emit_system_announcement, emit_user_notification } from "../../utilites/notifications_socket.js";
+import {
+  emit_system_announcement,
+  emit_user_notification
+}
+  from "../../utilites/notifications_socket.js";
+
+
+
+
+
 
 /**
- * Send notification to all users (broadcast)
+ * @function send_notification_to_all
+ * @desc    Send a notification to all users (broadcast).
+ * @param   {object} req - Express request object, expects title and message in body.
+ * @param   {object} res - Express response object.
+ * @returns {object} JSON response with status and message.
  */
 export const send_notification_to_all = async (req, res) => {
   try {
@@ -19,15 +29,15 @@ export const send_notification_to_all = async (req, res) => {
     }));
     await Notification.insertMany(notifications);
 
-      // Prepare notification payload
-      const notificationPayload = {
-        id: notifications._id,
-        title,
-        message,
-        read: false,
-        createdAt: notifications.createdAt,
-        type: 'notification'
-      };
+    // Prepare notification payload
+    const notificationPayload = {
+      id: notifications._id,
+      title,
+      message,
+      read: false,
+      createdAt: notifications.createdAt,
+      type: 'notification'
+    };
 
     // Emit via Socket.IO to all users using utility function
     const io = req.app.get('io');
@@ -35,16 +45,27 @@ export const send_notification_to_all = async (req, res) => {
       emit_system_announcement(io, notificationPayload)
       // broadcastAnnouncement(io, { title, message, type: 'notification' });
     }
-    await logEvent({ message: 'Notification sent to all users', level: 'info' });
     res.status(200).json({ status: 200, message: "Notification sent to all users" });
   } catch (error) {
-    await logEvent({ message: 'Error sending notification to all users', level: 'error', meta: { error: error.message } });
-    handleError(res, error, 500, "Failed to send notifications");
+    res.json({
+      status: 500,
+      message: "Failed to send notifications",
+      error: error.message
+    });
   }
 };
 
+
+
+
+
+
 /**
- * Send notification to a specific user
+ * @function send_notification_to_user
+ * @desc    Send a notification to a specific user.
+ * @param   {object} req - Express request object, expects title, message, and userId in body.
+ * @param   {object} res - Express response object.
+ * @returns {object} JSON response with status and message.
  */
 export const send_notification_to_user = async (req, res) => {
   try {
@@ -65,16 +86,26 @@ export const send_notification_to_user = async (req, res) => {
     // Get the io instance
     const io = req.app.get('io');
     emit_user_notification(io, userId, notificationPayload);
-    await logEvent({ message: 'Notification sent to user', level: 'info', meta: { userId } });
     res.json({ status: 200, message: "Notification sent to user" });
   } catch (error) {
-    await logEvent({ message: 'Error sending notification to user', level: 'error', meta: { error: error.message } });
-    handleError(res, error, 500, "Failed to send notification");
+    res.json({
+      status: 500,
+      message: "Failed to send notification to user",
+      error: error.message
+    });
   }
 };
 
+
+
+
+
 /**
- * Get all notifications for a user
+ * @function get_user_notifications
+ * @desc    Get all notifications for a specific user.
+ * @param   {object} req - Express request object, expects userId in params.
+ * @param   {object} res - Express response object.
+ * @returns {object} JSON response with status and array of notifications.
  */
 export const get_user_notifications = async (req, res) => {
   try {
@@ -82,27 +113,54 @@ export const get_user_notifications = async (req, res) => {
     const notifications = await Notification.find({ user: userId }).sort({ createdAt: -1 });
     res.status(200).json({ status: 200, notifications });
   } catch (error) {
-    await logEvent({ message: 'Error fetching notifications for user', level: 'error', meta: { error: error.message } });
-    handleError(res, error, 500, "Failed to fetch notifications");
+    res.json({
+      status: 500,
+      message: "Failed to fetch notifications",
+      error: error.message
+    });
   }
 };
 
+
+
+
+
+
 /**
- * Mark a notification as read
+ * @function mark_notification_as_read
+ * @desc    Mark a notification as read by its ID.
+ * @param   {object} req - Express request object, expects notificationId in params.
+ * @param   {object} res - Express response object.
+ * @returns {object} JSON response with status and message.
  */
 export const mark_notification_as_read = async (req, res) => {
   try {
     const notificationId = req.params.notificationId;
     await Notification.findByIdAndUpdate(notificationId, { read: true });
-    res.status(200).json({ status: 200, message: "Notification marked as read" });
+    res.status(200).
+      json({
+        status: 200,
+        message: "Notification marked as read"
+      });
   } catch (error) {
-    await logEvent({ message: 'Error marking notification as read', level: 'error', meta: { error: error.message } });
-    handleError(res, error, 500, "Failed to mark notification as read");
+    res.json({
+      status: 500,
+      message: "Failed to mark notification as read",
+      error: error.message
+    })
   }
 };
 
+
+
+
+
 /**
- * Delete a notification
+ * @function delete_notification
+ * @desc    Delete a notification by its ID.
+ * @param   {object} req - Express request object, expects notificationId in params.
+ * @param   {object} res - Express response object.
+ * @returns {object} JSON response with status and message.
  */
 export const delete_notification = async (req, res) => {
   try {
@@ -110,10 +168,57 @@ export const delete_notification = async (req, res) => {
     await Notification.findByIdAndDelete(notificationId);
     res.status(200).json({ status: 200, message: "Notification deleted" });
   } catch (error) {
-    await logEvent({ message: 'Error deleting notification', level: 'error', meta: { error: error.message } });
-    handleError(res, error, 500, "Failed to delete notification");
+    res.json({
+      status: 500,
+      message: "Failed to delete notification",
+      error: error.message
+    })
   }
 };
+
+
+
+/**
+ * @function send_system_announcement
+ * @desc    Send a system-wide announcement to all users.
+ * @param   {object} req - Express request object, expects title, message, and optional priority in body.
+ * @param   {object} res - Express response object.
+ * @returns {object} JSON response with status and message.
+ */
+export const send_system_announcement = async (req, res) => {
+  try {
+    const { title, message, priority = 'normal' } = req.body;
+
+    // For system announcements, we might not save to individual user notifications
+    // Instead, we could have a separate announcements collection or just broadcast
+
+    const io = req.app.get('io');
+    if (io) {
+      broadcastAnnouncement(io, {
+        title,
+        message,
+        priority,
+        type: 'system_announcement'
+      });
+    }
+
+
+
+    res.json({
+      status: 200,
+      message: "System announcement sent"
+    });
+  } catch (error) {
+    res.json({
+      status: 500,
+      message: "Failed to send system announcement",
+      error: error.message
+    })
+  }
+};
+
+
+
 
 /**
  * Send queue-related notification to user
@@ -143,56 +248,14 @@ export const send_queue_notification = async (req, res) => {
       });
     }
 
-    await logEvent({
-      message: 'Queue notification sent to user',
-      level: 'info',
-      meta: { userId, queueId, type }
-    });
+
 
     res.json({ status: 200, message: "Queue notification sent to user" });
   } catch (error) {
-    await logEvent({
-      message: 'Error sending queue notification to user',
-      level: 'error',
-      meta: { error: error.message }
-    });
-    handleError(res, error, 500, "Failed to send queue notification");
-  }
-};
-
-/**
- * Send system announcement to all users
- */
-export const send_system_announcement = async (req, res) => {
-  try {
-    const { title, message, priority = 'normal' } = req.body;
-
-    // For system announcements, we might not save to individual user notifications
-    // Instead, we could have a separate announcements collection or just broadcast
-
-    const io = req.app.get('io');
-    if (io) {
-      broadcastAnnouncement(io, {
-        title,
-        message,
-        priority,
-        type: 'system_announcement'
-      });
-    }
-
-    await logEvent({
-      message: 'System announcement broadcasted',
-      level: 'info',
-      meta: { title, priority }
-    });
-
-    res.json({ status: 200, message: "System announcement sent" });
-  } catch (error) {
-    await logEvent({
-      message: 'Error sending system announcement',
-      level: 'error',
-      meta: { error: error.message }
-    });
-    handleError(res, error, 500, "Failed to send system announcement");
+    res.json({
+      status: 500,
+      message: "Failed to send queue notification",
+      error: error.message
+    })
   }
 };

@@ -3,7 +3,13 @@ import Setting from "../../models/Setting.js";
 import { v2 as cloudinary } from 'cloudinary';
 
 
-// ***************** fetching website settings ********************
+/**
+ * @function fetch_setting
+ * @desc    Fetch application settings from the database.
+ * @param   {object} req - Express request object.
+ * @param   {object} res - Express response object.
+ * @returns {object} JSON response with status, settings data, and message.
+ */
 export const fetch_setting = async (req, res) => {
     try {
         await connectDB();
@@ -14,12 +20,22 @@ export const fetch_setting = async (req, res) => {
             message: 'Setting fetched successfully'
         });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.json({
+            status: 400,
+            message: "Failed Fetching Setting",
+            error: error.message
+        });
     }
 }
 
 
-// ***************** update website settings ********************
+/**
+ * @function update_settings
+ * @desc    Update application settings and upload logo if provided.
+ * @param   {object} req - Express request object, expects settings fields in body and optional logo file.
+ * @param   {object} res - Express response object.
+ * @returns {object} JSON response with status, updated settings data, and message.
+ */
 
 export const update_settings = async (req, res) => {
     try {
@@ -68,7 +84,11 @@ export const update_settings = async (req, res) => {
         });
 
     } catch (error) {
-        res.status(500).json({ status: 500, message: error.message });
+        res.json({
+            status: 400,
+            message: "Failed update Setting",
+            message: error.message
+        });
     }
 }
 

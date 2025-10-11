@@ -260,6 +260,54 @@ export const cancel_queue_by_employee = async (req, res) => {
 
 
 
+// fetch all queues for place 
+export const fetch_queues_for_place = async (req, res) => {
+    try {
+        await connectDB();
+        const placeId = req.params.placeId;
+        const queues = await Queue.find({
+            placeId: placeId
+        })
+        res.json({
+            status: 200,
+            data: queues
+        })
+    } catch (error) {
+        res.json({
+            status: 400,
+            error: error.message
+        })
+    }
+}
+
+
+
+export const fetch_queues_for_employee = async (req, res) => {
+    try {
+        await connectDB();
+        const employeeId = req.params.employeeId;
+        const objectId = new mongoose.Types.ObjectId(employeeId);
+       
+        const queues = await Queue.find({ "employee._id": objectId })
+             
+
+        res.json({
+            status: 200,
+            data: queues
+        })
+    } catch (error) {
+        res.json({
+            status: 400,
+            error: error.message
+        })
+    }
+}
+
+
+
+
+
+
 
 
 

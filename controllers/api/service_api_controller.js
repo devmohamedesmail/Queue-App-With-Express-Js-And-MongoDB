@@ -6,7 +6,12 @@ import { handleError } from "../../utilites/handleError.js";
 
 /**
  * Fetch all services for a specific place
+ * @function fetch_place_services
+ * @param {object} req - Express request object, expects placeId in params
+ * @param {object} res - Express response object
+ * @returns {object} JSON response with status, message, and array of services
  */
+
 export const fetch_place_services = async (req, res) => {
     try {
         const placeId = req.params.placeId;
@@ -26,6 +31,10 @@ export const fetch_place_services = async (req, res) => {
 
 /**
  * Get the last queue entry for a specific service in a place
+ * @function get_last_queue
+ * @param {object} req - Express request object, expects placeId in params and optional serviceId
+ * @param {object} res - Express response object
+ * @returns {object} JSON response with status, message, and last queue entry object
  */
 export const get_last_queue = async (req, res) => {
     try {

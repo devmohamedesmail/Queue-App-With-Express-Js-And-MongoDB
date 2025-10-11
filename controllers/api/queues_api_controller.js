@@ -9,10 +9,11 @@ import { logEvent } from "../../utilites/logEvent.js";
 import { emit_queue_new_entry } from "../../utilites/queues_socket.js";
 
 /**
- * Book a new queue for a user in a place/service
- * - Creates a new queue entry
- * - Emits real-time updates
- * - Logs the event
+ * @function book_new_queue
+ * @desc    Book a new queue for a user in a place/service.
+ * @param   {object} req - Express request object, expects userId, placeId, and optional serviceId in params.
+ * @param   {object} res - Express response object.
+ * @returns {object} JSON response with the new queue object.
  */
 export const book_new_queue = async (req, res) => {
     try {
@@ -55,9 +56,11 @@ export const book_new_queue = async (req, res) => {
 
 
 /**
- * Cancel a queue
- * - Updates queue status to cancelled
- * - Emits real-time updates
+ * @function cancel_queue
+ * @desc    Cancel a queue by updating its status to 'cancelled'.
+ * @param   {object} req - Express request object, expects queueId in params.
+ * @param   {object} res - Express response object.
+ * @returns {object} JSON response with the cancelled queue object.
  */
 export const cancel_queue = async (req, res) => {
     try {
@@ -93,9 +96,11 @@ export const cancel_queue = async (req, res) => {
 
 
 /**
- * Move a queue to the back
- * - Cancels old queue, creates new one
- * - Emits real-time updates
+ * @function move_queue_to_back
+ * @desc    Move a user's queue to the back by cancelling the old queue and creating a new one.
+ * @param   {object} req - Express request object, expects queueId in params.
+ * @param   {object} res - Express response object.
+ * @returns {object} JSON response with the new queue object.
  */
 export const move_queue_to_back = async (req, res) => {
     try {
@@ -149,12 +154,11 @@ export const move_queue_to_back = async (req, res) => {
 
 
 /**
- * Fetch all waiting queues in a service/place for today,
- * and calculate estimated time for the last waiting queue.
- * - If serviceId is provided, use service.estimateTime
- * - If not, use place.estimateTime
- * - estimatedTime = waitingQueue.length * estimateTime
- * - Also return the last waiting queue (if any)
+ * @function fetch_all_waiting_queues_in_service
+ * @desc    Fetch all waiting queues for a specific place/service for today and calculate estimated time.
+ * @param   {object} req - Express request object, expects placeId and optional serviceId in params.
+ * @param   {object} res - Express response object.
+ * @returns {object} JSON response with waiting queues, estimated time, and last waiting queue.
  */
 export const fetch_all_waiting_queues_in_service = async (req, res) => {
     try {
@@ -220,7 +224,11 @@ export const fetch_all_waiting_queues_in_service = async (req, res) => {
 
 
 /**
- * Get the first active queue in a service/place
+ * @function get_first_active_queue_in_service
+ * @desc    Get the first active queue for a specific place/service for today.
+ * @param   {object} req - Express request object, expects placeId and optional serviceId in params.
+ * @param   {object} res - Express response object.
+ * @returns {object} JSON response with the first active queue object.
  */
 export const get_first_active_queue_in_service = async (req, res) => {
     try {
@@ -249,7 +257,11 @@ export const get_first_active_queue_in_service = async (req, res) => {
 
 
 /**
- * Get all user queues for today
+ * @function get_all_users_queues_today
+ * @desc    Get all queues for a user for today, including position and estimated time.
+ * @param   {object} req - Express request object, expects userId in params.
+ * @param   {object} res - Express response object.
+ * @returns {object} JSON response with all today's queues for the user.
  */
 export const get_all_users_queues_today = async (req, res) => {
     try {
@@ -336,7 +348,11 @@ export const get_all_users_queues_today = async (req, res) => {
 
 
 /**
- * Get all queues of the user for history
+ * @function get_all_user_queues_history
+ * @desc    Get all historical queues for a user.
+ * @param   {object} req - Express request object, expects userId in params.
+ * @param   {object} res - Express response object.
+ * @returns {object} JSON response with all historical queues for the user.
  */
 export const get_all_user_queues_history = async (req, res) => {
     try {
@@ -359,24 +375,12 @@ export const get_all_user_queues_history = async (req, res) => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /**
- * Activate a queue for a subscriber
- * - Sets queue status to active
- * - Emits real-time updates
+ * @function subscriber_active_queue
+ * @desc    Activate a queue for a subscriber by setting its status to 'active'.
+ * @param   {object} req - Express request object, expects queueId and userId in params.
+ * @param   {object} res - Express response object.
+ * @returns {object} JSON response with the updated queue object.
  */
 export const subscriber_active_queue = async (req, res) => {
     try {

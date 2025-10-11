@@ -3,7 +3,13 @@ import Page from "../../models/Page.js"
 
 
 
-
+/**
+ * @function add_new_page
+ * @desc    Create a new page with English and Arabic titles and content.
+ * @param   {object} req - Express request object, expects title_en, title_ar, content_en, content_ar in body.
+ * @param   {object} res - Express response object.
+ * @returns {object} JSON response with status, message, and created page data.
+ */
 
 export const add_new_page = async (req, res) => {
     try {
@@ -41,7 +47,13 @@ export const add_new_page = async (req, res) => {
 
 
 
-
+/**
+ * @function fetch_pages
+ * @desc    Fetch all pages from the database.
+ * @param   {object} req - Express request object.
+ * @param   {object} res - Express response object.
+ * @returns {object} JSON response with status, array of pages, and message.
+ */
 
 export const fetch_pages = async (req, res) => {
     try {
@@ -64,7 +76,13 @@ export const fetch_pages = async (req, res) => {
 
 
 
-// *************** update page
+/**
+ * @function update_page
+ * @desc    Update an existing page by its ID.
+ * @param   {object} req - Express request object, expects pageId in params and updated fields in body.
+ * @param   {object} res - Express response object.
+ * @returns {object} JSON response with status, message, and updated page data.
+ */
 export const update_page = async (req, res) => {
     try {
         await connectDB();
@@ -113,7 +131,13 @@ export const update_page = async (req, res) => {
     }
 };
 
-// حذف صفحة
+/**
+ * @function delete_page
+ * @desc    Delete a page by its ID.
+ * @param   {object} req - Express request object, expects pageId in params.
+ * @param   {object} res - Express response object.
+ * @returns {object} JSON response with status and message.
+ */
 export const delete_page = async (req, res) => {
     try {
         await connectDB();
