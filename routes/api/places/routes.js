@@ -20,7 +20,7 @@ const upload = multer({ storage });
  * @desc    Fetch all places with their services
  * @access  Protected
  */
-router.get('/', authenticateToken, fetch_places_with_services);
+router.get('/', fetch_places_with_services);
 
 /**
  * @route   POST /api/places/add/new/place
